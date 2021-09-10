@@ -729,22 +729,6 @@ class WC_Gateway_Braintree_AngellEYE extends WC_Payment_Gateway_CC {
                                     },
                                     <?php } ?>
                                   }, function (err, payload) {
-                                
-                                    if(err) {
-                                        $('.woocommerce-error').remove();
-                                        console.log(err.message);
-                                        unique_form_for_validation.prepend('<ul class="woocommerce-error"><li>' + err.message + '</li></ul>');
-                                        $('.braintree-device-data', ccForm).remove();
-                                        $('.braintree-token', ccForm).remove();
-                                        var scrollElement           = $( '.woocommerce-error' );
-                                        if ( ! scrollElement.length ) {
-                                           scrollElement = $( '.form.checkout' );
-                                        }
-                                        $.scroll_to_notices( scrollElement );
-                                        $('.is_submit').remove();
-                                        $form.unblock();
-                                        return false;
-                                    }
                                     <?php if($this->threed_secure_enabled === true) { ?>
                                     if (!payload.liabilityShifted && payload.type == 'CreditCard') {
                                         if( typeof dropinInstance !== 'undefined') {
@@ -774,6 +758,13 @@ class WC_Gateway_Braintree_AngellEYE extends WC_Payment_Gateway_CC {
                                         $form.submit();
                                         $('form.checkout').triggerHandler("checkout_place_order");
                                     } 
+                                    if(err) {
+                                        $('.woocommerce-error').remove();
+                                        console.log(err.message);
+                                        $('.is_submit').remove();
+                                        $form.unblock();
+                                        return false;
+                                    }
                                 });
                             }
                             });
