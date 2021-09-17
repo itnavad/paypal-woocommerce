@@ -183,6 +183,7 @@ if(!class_exists('AngellEYE_Gateway_Paypal')){
             add_filter( 'woocommerce_email_actions', array($this, 'own_angelleye_woocommerce_email_actions'), 10);
             add_action( 'angelleye_classic_gateway_sub_menu', array($this, 'angelleye_classic_gateway_sub_menu'));
             add_action( 'wcv_save_product', array($this,'angelleye_wcv_save_product'));
+            add_filter( 'admin_body_class', array( $this, 'angelleye_include_admin_body_class' ), 9999 );
             $this->customer_id;
         }
 
@@ -1566,6 +1567,23 @@ if(!class_exists('AngellEYE_Gateway_Paypal')){
                     . '</div>'
                     . '</div>';
                 echo $admin_notice_latest_version;
+            }
+        }
+        
+        public function angelleye_include_admin_body_class($classes) {
+            try {
+                global $post;
+                if ( 'shop_order' !== $post->post_type ) {
+                    return $classes;
+                }
+                $order = wc_get_order( absint( $post->ID ) );
+                $payment_method = $order->get_payment_method();
+                if ( !empty($payment_method) ) {
+                    $classes .= ' angelleye_'. $payment_method;
+                }
+                return $classes;
+            } catch (Exception $ex) {
+                return $classes;
             }
         }
     }
