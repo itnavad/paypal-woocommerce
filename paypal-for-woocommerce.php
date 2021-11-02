@@ -4,7 +4,7 @@
  * Plugin Name:       PayPal for WooCommerce
  * Plugin URI:        http://www.angelleye.com/product/paypal-for-woocommerce-plugin/
  * Description:       Easily enable PayPal Express Checkout, PayPal Pro, PayPal Advanced, PayPal REST, and PayPal Braintree.  Each option is available separately so you can enable them individually.
- * Version:           2.5.19
+ * Version:           3.0.0
  * Author:            Angell EYE
  * Author URI:        http://www.angelleye.com/
  * License:           GNU General Public License v3.0
@@ -15,7 +15,7 @@
  * Requires at least: 5.5
  * Tested up to: 5.8.1
  * WC requires at least: 3.0.0
- * WC tested up to: 5.7.1
+ * WC tested up to: 5.8.0
  *
  *************
  * Attribution
@@ -39,7 +39,7 @@ if (!defined('PAYPAL_FOR_WOOCOMMERCE_ASSET_URL')) {
     define('PAYPAL_FOR_WOOCOMMERCE_ASSET_URL', plugin_dir_url(__FILE__));
 }
 if (!defined('VERSION_PFW')) {
-    define('VERSION_PFW', '2.5.19');
+    define('VERSION_PFW', '3.0.0');
 }
 if ( ! defined( 'PAYPAL_FOR_WOOCOMMERCE_PLUGIN_FILE' ) ) {
     define( 'PAYPAL_FOR_WOOCOMMERCE_PLUGIN_FILE', __FILE__ );
@@ -530,8 +530,58 @@ if(!class_exists('AngellEYE_Gateway_Paypal')){
                     break;
                 }
             }
-            if( $this->subscription_support_enabled ) {
-                if ((isset($_GET['tab']) && 'checkout' !== $_GET['tab']) || !isset($_GET['tab'])) {
+            if(is_admin()) {
+                if( $this->subscription_support_enabled ) {
+                    if ((isset($_GET['tab']) && 'checkout' !== $_GET['tab']) || isset($_GET['section'])) {
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-pro-payflow-subscriptions-angelleye.php' );
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-advanced-subscriptions-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-express-subscriptions-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-pro-subscriptions-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-braintree-subscriptions-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-credit-cards-rest-subscriptions-angelleye.php');
+                        $methods[] = 'WC_Gateway_PayPal_Pro_PayFlow_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Advanced_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Pro_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Express_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_Braintree_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Credit_Card_Rest_Subscriptions_AngellEYE';
+                    } else {
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-braintree-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-braintree-subscriptions-angelleye.php');
+                        if(is_angelleye_multi_account_active()) {
+                            include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v1.php');
+                        } else {
+                            include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v2.php');
+                        }
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-express-subscriptions-angelleye.php');
+                        $methods[] = 'WC_Gateway_Braintree_Subscriptions_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Express_Subscriptions_AngellEYE';
+                    }
+                } else {
+                    if ((isset($_GET['tab']) && 'checkout' !== $_GET['tab']) || isset($_GET['section'])) {
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/ppcp-gateway/class-wc-gateway-ppcp-angelleye.php');
+                        $methods[] = 'WC_Gateway_PayPal_Pro_Payflow_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Advanced_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Pro_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Express_AngellEYE';
+                        $methods[] = 'WC_Gateway_Braintree_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Credit_Card_Rest_AngellEYE';
+                        $methods[] = 'WC_Gateway_PPCP_AngellEYE';
+                    } else {
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-braintree-angelleye.php');
+                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/ppcp-gateway/class-wc-gateway-ppcp-angelleye.php');
+                        if(is_angelleye_multi_account_active()) {
+                            include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v1.php');
+                        } else {
+                            include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v2.php');
+                        }
+                        $methods[] = 'WC_Gateway_Braintree_AngellEYE';
+                        $methods[] = 'WC_Gateway_PPCP_AngellEYE';
+                        $methods[] = 'WC_Gateway_PayPal_Express_AngellEYE';
+                    }
+                }
+            } else {
+                if( $this->subscription_support_enabled ) {
                     include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-pro-payflow-subscriptions-angelleye.php' );
                     include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-advanced-subscriptions-angelleye.php');
                     include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-express-subscriptions-angelleye.php');
@@ -545,19 +595,6 @@ if(!class_exists('AngellEYE_Gateway_Paypal')){
                     $methods[] = 'WC_Gateway_Braintree_Subscriptions_AngellEYE';
                     $methods[] = 'WC_Gateway_PayPal_Credit_Card_Rest_Subscriptions_AngellEYE';
                 } else {
-                    include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-braintree-angelleye.php');
-                    include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-braintree-subscriptions-angelleye.php');
-                    if(is_angelleye_multi_account_active()) {
-                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v1.php');
-                    } else {
-                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v2.php');
-                    }
-                    include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/subscriptions/wc-gateway-paypal-express-subscriptions-angelleye.php');
-                    $methods[] = 'WC_Gateway_Braintree_Subscriptions_AngellEYE';
-                    $methods[] = 'WC_Gateway_PayPal_Express_Subscriptions_AngellEYE';
-                }
-            } else {
-                if ((isset($_GET['tab']) && 'checkout' !== $_GET['tab']) || !isset($_GET['tab'])) {
                     include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/ppcp-gateway/class-wc-gateway-ppcp-angelleye.php');
                     $methods[] = 'WC_Gateway_PayPal_Pro_Payflow_AngellEYE';
                     $methods[] = 'WC_Gateway_PayPal_Advanced_AngellEYE';
@@ -566,19 +603,7 @@ if(!class_exists('AngellEYE_Gateway_Paypal')){
                     $methods[] = 'WC_Gateway_Braintree_AngellEYE';
                     $methods[] = 'WC_Gateway_PayPal_Credit_Card_Rest_AngellEYE';
                     $methods[] = 'WC_Gateway_PPCP_AngellEYE';
-                } else {
-                    include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-braintree-angelleye.php');
-                    include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/ppcp-gateway/class-wc-gateway-ppcp-angelleye.php');
-                    if(is_angelleye_multi_account_active()) {
-                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v1.php');
-                    } else {
-                        include_once ( PAYPAL_FOR_WOOCOMMERCE_PLUGIN_DIR . '/classes/wc-gateway-paypal-express-angelleye-v2.php');
-                    }
-                    $methods[] = 'WC_Gateway_Braintree_AngellEYE';
-                    $methods[] = 'WC_Gateway_PPCP_AngellEYE';
-                    $methods[] = 'WC_Gateway_PayPal_Express_AngellEYE';
                 }
-                
             }
             return $methods;
         }
